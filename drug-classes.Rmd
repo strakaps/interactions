@@ -1,0 +1,86 @@
+Consider the following Classes of drugs: 
+  
+  ##### Class 1 (SSRIs)
+  Fluvoxamine
+Fluoxetine
+Sertraline
+Escitalopram
+Citalopram
+Paroxetine
+
+##### Class 2 (TCAs)
+Amitriptyline
+Clomipramine
+Dothiepin
+Doxepin
+Imipramine
+Nortriptyline
+
+##### Class 3 (MAOI)
+Tranylcypromine
+
+##### Class 4 (SMAOI)
+Moclobemide
+
+##### Class 5 (NaSSa)
+Mianserin
+Mirtazapine
+
+##### Class 6 (SNRI)
+Reboxetine
+Venlafaxine
+
+##### Class 7 (Other)
+Lithium
+Desvenlafaxine
+Duloxetine
+
+Code this as a random vector from $\{0,1\}^7$. Note that we do not use
+1-of-K notation, i.e. class can overlap.
+
+```{r classes, echo=FALSE}
+Cindices <- vector("list", 7)
+
+Cindices[[1]] <- c(grep('^Fluvoxamine', names(dd), ignore.case = TRUE),
+                   grep('^Fluoxetine', names(dd), ignore.case = TRUE),
+                   grep('^Sertraline', names(dd), ignore.case = TRUE),
+                   grep('^Escitalopram', names(dd), ignore.case = TRUE),
+                   grep('^Citalopram', names(dd), ignore.case = TRUE),
+                   grep('^Paroxetine', names(dd), ignore.case = TRUE))
+
+Cindices[[2]] <- c(grep('^Amitriptyline', names(dd), ignore.case = TRUE),
+                   grep('^Clomipramine', names(dd), ignore.case = TRUE),
+                   grep('^Dothiepin', names(dd), ignore.case = TRUE),
+                   grep('^Doxepin', names(dd), ignore.case = TRUE),
+                   grep('^Imipramine', names(dd), ignore.case = TRUE),
+                   grep('^Nortriptyline', names(dd), ignore.case = TRUE))
+
+Cindices[[3]] <- grep('^Tranylcypromine$', names(dd), ignore.case = TRUE)
+
+Cindices[[4]] <- grep('^Moclobemide$', names(dd), ignore.case = TRUE)
+
+Cindices[[5]] <- c(grep('^Mianserin', names(dd), ignore.case = TRUE),
+                   grep('^Mirtazapine', names(dd), ignore.case = TRUE))
+
+Cindices[[6]] <- c(grep('^Reboxetine', names(dd), ignore.case = TRUE),
+                   grep('^Venlafaxine', names(dd), ignore.case = TRUE))
+
+Cindices[[7]] <- c(grep('^Lithium', names(dd), ignore.case = TRUE),
+                   grep('^Desvenlafaxine', names(dd), ignore.case = TRUE),
+                   grep('^Duloxetine', names(dd), ignore.case = TRUE))
+
+# adds Class variables to the dataframe
+adply(.data = dd, .margins = 1, .fun = function(x){
+  return(
+    laply(.data = 1:7, .fun = function(k){
+      as.integer(sum(x[Cindices[[k]]]) > 0)
+    })
+  )
+}) -> dd
+names(dd)[grep("V[0-9]", names(dd))] <- c("Class1", "Class2", "Class3", 
+                                          "Class4", "Class5", "Class6", "Class7")
+
+# check with given class variable; seems to be right reasonably often
+# sum((dd$Class == 4) == (dd$Class4)) / dim(dd)[1]
+```
+
