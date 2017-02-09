@@ -1,5 +1,6 @@
 *.Rproj*
 .Rhistory
-.RData
 .Ruserdata
 *.html
+.Rproj.user
+*.png

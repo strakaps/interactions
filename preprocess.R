@@ -64,3 +64,4 @@ x <- dd$age
 # save categorical variable
 z <- as.matrix(dd[,-grep('age', names(dd))])
 
+save.image("synth-allcols.RData")

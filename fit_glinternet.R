@@ -3,15 +3,15 @@ args = commandArgs(trailingOnly = TRUE) # name of the outputfile
 require(glinternet)
 
 source('auxiliaries.R')
-load("./data7vars.RData")
+load("./synth-allcols.RData")
 
 # numbers of levels; 1 is coded as continuous
 numLevels <- c(1,apply(X = z, MARGIN = 2, FUN = function(x){length(unique(x))}))
 
 n <- dim(z)[1] # number of rows
 
-maxLambda <- exp(-6)
-minLambda <- exp(-10)
+maxLambda <- exp(-6.5)
+minLambda <- exp(-9)
 nLambda <- 50
 lambda <- exp(seq(from = log(maxLambda), to = log(minLambda), 
                   length.out = nLambda))

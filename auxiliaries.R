@@ -30,7 +30,7 @@ get_data <- function(){
   y <- real$gold_standard
   # continuous Ivs:
   x <- real[,names(real) == "age"] 
-  z <- real[,names(real) != "age" & names(real) != "gold_standard"]
+  z <- real[,(names(real) != "age") & (names(real) != "gold_standard")]
   z <- as.matrix(z)
   return(list(x,y,z))
 }

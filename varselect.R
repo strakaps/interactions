@@ -3,7 +3,8 @@ require(pROC)
 require(hash)
 
 source("auxiliaries.R")
-load("~/Documents/Research/Projects/16Depression/data7vars.RData")
+load("synth-allcols.RData")
+
 filenames <- dir("./glinternet_models/")
 load(paste("./glinternet_models/",filenames[1], sep = ""))
 lambda <- fit$lambda
@@ -56,7 +57,7 @@ for(model in 1:length(filenames)){
     mains <- coefs[[lam]]$mainEffects$cont
     for(imain in 1:length(mains)){
       if(length(mains) == 0){break}
-      key <- toString(mains[imain])
+      key <- "0" #ASSUMING ONLY ONE CONTINUOUS VARIABLE HERE
       # cannot set value to default = 0 if key is not defined; 
       # hence the awkward code below
       oldval <- h[[lam]][[key]]
@@ -85,7 +86,8 @@ for(model in 1:length(filenames)){
     if (!is.null(inter)){
       for(iinter in 1:dim(inter)[1]){
         if(length(inter) == 0){break}
-        key <- toString(inter[iinter,])
+        #ASSUMING ONLY ONE CONTINUOUS VARIABLE HERE:
+        key <- toString(c(inter[iinter,1],0))
         oldval <- h[[lam]][[key]]
         if (is.null(oldval)) {
           h[[lam]][[key]] <- 1
@@ -143,7 +145,47 @@ for(i in 1:nLambda){
   row -> count_matrix[i, ]
 }
 
-heatmap(x = count_matrix, Rowv = NA, Colv = NA, 
-        add.expr = abline(h=c(i1SE,iMax), lty = 2))
+# does this: "8, 0" -> [1] "amitriptyline, age"
+get_varnames <- function(index_string, name_string){
+  # takes a string of single index or pair of indices and outputs variable name
+  ixi <- as.integer(unlist(strsplit(index_string, ', '))) # index integers
+  out_string = laply(ixi, .fun=function(x){
+    if(x==0){
+      return("age")
+    } else{
+      return(name_string[x])
+    }
+  })
+  paste(out_string, collapse = ", ")
+}
+
+laply(var_names, .fun = function(s){
+  get_varnames(s, dimnames(z)[[2]])
+}) -> dimnames(count_matrix)[[2]]
+
+# Plot heatmap
+
+require(ggplot2)
+require(data.table)
+count.m = melt(count_matrix)
+count.m$Var1 <- factor(count.m$Var1)
+
+base_size <- 9
+# the plot below won't be shown if you source this file. 
+# You have to manually run these lines in RStudio...
+(p <- ggplot(count.m, aes(Var1, Var2)) + 
+    geom_tile(aes(fill = value), colour = "white") +
+    geom_vline(xintercept = length(lambda) + 1 - i1SE, 
+               linetype = 2) +
+    geom_vline(xintercept = length(lambda) + 1 - iMax, 
+               linetype = 2) +
+    scale_fill_gradient(low = "white", high = "steelblue") + 
+    theme_grey(base_size=base_size) + 
+    labs(x="", y="") + 
+    scale_x_discrete(expand = c(0,0)) + 
+    scale_y_discrete(expand = c(0, 0)) + 
+    theme( #axis.ticks = element_blank(), 
+          axis.text.x=element_text(size=base_size*0.8, angle=90, hjust = 0)))
 
 
+# pdf: 7.7 times 4.8 inches
